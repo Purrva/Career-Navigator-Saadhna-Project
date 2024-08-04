@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gen AI App</title>
+  <style>
+    /* Add a CSS style block to modify the button color */
+    #submitBtn {
+      background-color: lime;
+    }
+  </style>
+</head>
+<body>
+  <form>
+    <textarea id="textInput" maxlength="150" rows="4" cols="70" name="textInput" oninput="updateCharacterCount()"></textarea>
+    <div id="characterCount">150</div>
+    <br>
+    <input id="submitBtn" type="button" value="Generate Response" onclick="validateAndSubmit()">
+  </form>
+
+  <br>
+  <div id="response"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+  <script>
+    // Update character count
+    function updateCharacterCount() {
+      var textarea = document.getElementById("textInput");
+      var characterCount = document.getElementById("characterCount");
+      characterCount.innerHTML = 150 - textarea.value.length;
+    }
+
+    // Validate input and submit text
+    function validateAndSubmit() {
+      var textarea = document.getElementById("textInput");
+      var input = textarea.value;
+      var regex = /[,"\\\/#@*|!=]/g;
+      
+      if (regex.test(input)) {
+        alert("Invalid input! The symbols \", \\, #, @, *, |, and ! are not allowed.");
+        return false;
+      }
+
+      submitText(input);
+    }
+
+    // Submit text to the Flask app
+    function submitText(text) {
+      $.ajax({
+        url: 'http://localhost:8080/predict', // Change this to your Flask app URL if needed
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({"text": text}),
+        success: function(response) {
+          document.getElementById("response").innerText = response.response;
+        },
+        error: function(xhr, status, error) {
+          document.getElementById("response").innerText = "An error occurred: " + error;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
